@@ -12,6 +12,7 @@
                         <div class="alert alert-success" role="alert">
                             {{ session('status') }}
                             <h1>hola</h1>
+                            <h2>prueba</h2>
                         </div>
                     @endif
 
