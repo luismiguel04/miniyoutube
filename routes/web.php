@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Models\video;
+use APP\Models\Comentarios;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,8 +16,24 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
-});
+     return view('welcome'); 
+    });
+ /*  $videos= video::all();
+  foreach($videos as $video){
+      echo $video ->title.'<br>';
+      echo $video ->user ->email. '<br>';
+      foreach($video->comments as $comment){
+        echo $comment->body;
+        }
+        echo '<hr>';
+        
+      
+       }
+       die();
+return view(‘welcome’);
+}); */
+
+
 
 Route::middleware([
     'auth:sanctum',
@@ -30,3 +48,5 @@ Route::middleware([
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+Route::resource('videos','App\Http\Controllers\VideoController');
