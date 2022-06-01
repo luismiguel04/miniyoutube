@@ -16,7 +16,7 @@ use APP\Models\Comentarios;
 */
 
 Route::get('/', function () {
-     return view('welcome'); 
+     return view('videos.index');
     });
  /*  $videos= video::all();
   foreach($videos as $video){
@@ -26,8 +26,8 @@ Route::get('/', function () {
         echo $comment->body;
         }
         echo '<hr>';
-        
-      
+
+
        }
        die();
 return view(‘welcome’);

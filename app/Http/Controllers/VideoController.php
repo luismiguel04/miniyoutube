@@ -14,7 +14,7 @@ class VideoController extends Controller
      */
     public function index()
     {
-       
+
         //carga la pagina de inicio del objeto(videos segun el controlador)
           return view('videos.index');
     }
@@ -58,16 +58,25 @@ if($image){
    \Storage::disk('images')->put($image_path, \File::get($image));
 
    $video->image =$image_path;
-}
 
-      
+}
+//subir video
+            $video_file = $request->file('video');
+            if($video_file){
+               $video_path = time().$video_file->getClientOriginalName();
+               \Storage::disk('videos')->put($video_path,
+               \File::get($video_file));
+               $video->video_path = $video_path;
+            }
+
+
         $video ->save();
         return redirect()->route('videos.index')
          ->with(array(
             'message'=>'El video se ha subido correctamente'
         ));
 
-        
+
     }
 
     /**
