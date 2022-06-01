@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\video;
+use App\Models\vsvideos;
 
 class VideoController extends Controller
 {
@@ -16,9 +17,74 @@ class VideoController extends Controller
     {
 
         //carga la pagina de inicio del objeto(videos segun el controlador)
-          return view('videos.index');
+
+        $vs_videos = vsvideos::where('status','=',1)->get();
+        $videos = $this->cargarDT($vs_videos );
+        return view('videos.index')->with('videos',$videos);
     }
 
+    public function cargarDT($consulta)
+    {
+        $videos = [];
+
+        foreach ($consulta as $key => $value){
+/*
+            $ruta = "eliminar".$value['id'];
+            $eliminar = route('delete-area', $value['id']);
+            $actualizar =  route('areas.edit', $value['id']);
+
+
+            $acciones = '
+                <div class="btn-acciones">
+                    <div class="btn-circle">
+                        <a href="'.$actualizar.'" role="button" class="btn btn-success" title="Actualizar">
+                            <i class="far fa-edit"></i>
+                        </a>
+                        <a href="#'.$ruta.'" role="button" class="btn btn-danger" data-toggle="modal" title="Eliminar">
+                            <i class="far fa-trash-alt"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="modal fade" id="'.$ruta.'" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="exampleModalLabel">¿Seguro que deseas eliminar este curso?</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <p class="text-primary">
+                        <small>
+                            '.$value['id'].', '.$value['descripcion'].'                 </small>
+                      </p>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      <a href="'.$eliminar.'" type="button" class="btn btn-danger">Eliminar</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ';
+*/
+            $videos[$key] = array(
+               // $acciones,
+                $value['id'],
+                $value['title'],
+                $value['description'],
+                $value['image'],
+                $value['video_path'],
+                $value['name'],
+                $value['email']
+
+            );
+
+        }
+
+        return $videos;
+    }
 
     /**
      * Show the form for creating a new resource.
