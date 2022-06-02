@@ -19,8 +19,9 @@ class VideoController extends Controller
         //carga la pagina de inicio del objeto(videos segun el controlador)
 
         $vs_videos = vsvideos::where('status','=',1)->get();
+        $cont =vsvideos::count();
         $videos = $this->cargarDT($vs_videos );
-        return view('videos.index')->with('videos',$videos);
+        return view('videos.index')->with('videos',$videos)->with('cont',$cont);
     }
 
     public function cargarDT($consulta)
