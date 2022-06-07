@@ -29,10 +29,10 @@ class VideoController extends Controller
         $videos = [];
 
         foreach ($consulta as $key => $value){
-/*
+
             $ruta = "eliminar".$value['id'];
-            $eliminar = route('delete-area', $value['id']);
-            $actualizar =  route('areas.edit', $value['id']);
+            $eliminar = route('delete-videos', $value['id']);
+            $actualizar =  route('videos.edit', $value['id']);
 
 
             $acciones = '
@@ -50,7 +50,7 @@ class VideoController extends Controller
                 <div class="modal-dialog" role="document">
                   <div class="modal-content">
                     <div class="modal-header">
-                      <h5 class="modal-title" id="exampleModalLabel">¿Seguro que deseas eliminar este curso?</h5>
+                      <h5 class="modal-title" id="exampleModalLabel">¿Seguro que deseas eliminar este video?</h5>
                       <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                       </button>
@@ -58,7 +58,7 @@ class VideoController extends Controller
                     <div class="modal-body">
                       <p class="text-primary">
                         <small>
-                            '.$value['id'].', '.$value['descripcion'].'                 </small>
+                            '.$value['id'].', '.$value['title'].'                 </small>
                       </p>
                     </div>
                     <div class="modal-footer">
@@ -69,9 +69,9 @@ class VideoController extends Controller
                 </div>
               </div>
             ';
-*/
+
             $videos[$key] = array(
-               // $acciones,
+                $acciones,
                 $value['id'],
                 $value['title'],
                 $value['description'],
@@ -166,6 +166,9 @@ if($image){
     public function edit($id)
     {
         // muesto lo que tengoabre el formulario para edicion
+//        $video = Video::find($video_id);
+//        return view('videos.edit',$video_id);
+
     }
 
     /**
@@ -189,5 +192,20 @@ if($image){
     public function destroy($id)
     {
         //borrar
+    }
+    public function delete_video($video_id){
+        $video = Video::find($video_id);
+        if($video){
+            $video->activo = 0;
+            $video->update();
+            return redirect()->route('videos.index')->with(array(
+                "message" => "El video se ha eliminado correctamente"
+            ));
+        }else{
+            return redirect()->route('videos.index')->with(array(
+                "message" => "El video que trata de eliminar no existe"
+            ));
+        }
+
     }
 }
