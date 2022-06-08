@@ -8,5 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class vsvideos extends Model
 {
     use HasFactory;
-    protected  $table= 'vs_videos';
+    protected $table='vs_videos';
 };

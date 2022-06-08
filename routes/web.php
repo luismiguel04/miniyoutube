@@ -49,6 +49,8 @@ Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
+Route::resource('videos','App\http\Controllers\videoController');
+
 Route::get('/delete-video/{video_id}', array(
     'as' => 'delete-video',
     'middleware' => 'auth',
