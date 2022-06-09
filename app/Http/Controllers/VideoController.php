@@ -174,11 +174,10 @@ if($image){
      */
     public function edit($id)
     {
-        // muesto lo que tengoabre el formulario para edicion
-//        $videos = Video::find($videos_id);
-//        return view('videos.edit',$video_id);
-        return view('videos.edit', $id);
+        $video=VsVideos::find($id);
 
+        //abre el formulario para edición de un registro
+        return view('videos.edit')->with('video',$video);
     }
 
     /**
@@ -191,6 +190,33 @@ if($image){
     public function update(Request $request, $id)
     {
         //guarda la informacion modificada del edit
+        $validaData = $this ->validate($request,[
+            'title'=>'required|min:5',
+            'description'=>'required',
+            'videos'=>'mimes:mp4'
+        ]);
+
+        $user=\Auth::user();
+       $video= Video::find($id);
+        $video->user_id = $user->id;
+        $video->title =$request->input('title');
+        /* $image= $file('image'); */
+        $video->description =$request->input ('description');
+
+        $image = $request->file('image');
+        if($image) {
+            $image_path = time() . $image->getClientOriginalName();
+            \Storage::disk('images')->put($image_path, \File::get($image));
+
+            $video->image = $image_path;
+        }
+        $video ->update();
+        return redirect()->route('videos.index')
+            ->with(array(
+                'message'=>'El video se ha guardado correctamente'
+            ));
+
+
     }
 
     /**
