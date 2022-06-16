@@ -164,6 +164,8 @@ if($image){
     public function show($id)
     {
         //muestra un registro indibidual
+
+
     }
 
     /**
@@ -244,4 +246,8 @@ if($image){
         }
 
     }
+    public function getImage($filename){
+        $file =\Storege::disk('imges')->get($filename);
+        return new Response($file,200);
+}
 }
