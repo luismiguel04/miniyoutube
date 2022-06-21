@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 use App\Models\video;
 use App\Models\vsvideos;
+use App\Models\User;
 
 class VideoController extends Controller
 {
@@ -18,36 +20,29 @@ class VideoController extends Controller
 
         //carga la pagina de inicio del objeto(videos segun el controlador)
 
-        $vs_videos = vsvideos::where('status','=',1)->get();
-        $cont =vsvideos::count();
-        $videos = $this->cargarDT($vs_videos );
-        return view('videos.index')->with('videos',$videos)->with('cont',$cont);
+        $vs_videos = vsvideos::where('status', '=', 1)->get();
+        $cont = vsvideos::count();
+        $videos = $this->cargarDT($vs_videos);
+        return view('videos.index')->with('videos', $videos)->with('cont', $cont);
     }
 
     public function cargarDT($consulta)
     {
         $videos = [];
 
-        foreach ($consulta as $key => $value){
+        foreach ($consulta as $key => $value) {
 
-            $ruta = "eliminar".$value['id'];
-            $eliminar = route('delete-video'
-
-
-
-
-
-
-                , $value['id']);
+            $ruta = "eliminar" . $value['id'];
+            $eliminar = route('delete-video', $value['id']);
             $actualizar =  route('videos.edit', $value['id']);
 
             $acciones = '
                 <div class="btn-acciones">
                     <div class="btn-circle">
-                        <a href="'.$actualizar.'" role="button" class="btn btn-success" title="Actualizar">
+                        <a href="' . $actualizar . '" role="button" class="btn btn-success" title="Actualizar">
                             <i class="far fa-edit"></i>
                         </a>
-                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#'.$ruta.'">
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#' . $ruta . '">
                         Eliminar
                         </button>
 
@@ -55,7 +50,7 @@ class VideoController extends Controller
                 </div>
 
                  <!-- Modal -->
-            <div class="modal fade" id="'.$ruta.'" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal fade" id="' . $ruta . '" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -65,22 +60,23 @@ class VideoController extends Controller
                         <div class="modal-body">
                             <p class="text-primary">
                         <small>
-                            '.$value['id'].', '.$value['title'].'                 </small>
+                            ' . $value['id'] . ', ' . $value['title'] . '                 </small>
                       </p>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 
-                      <a href="'.$eliminar.'" type="button" class="btn btn-danger">Eliminar</a>
+                      <a href="' . $eliminar . '" type="button" class="btn btn-danger">Eliminar</a>
                         </div>
                     </div>
                 </div>
             </div>
 
             ';
-
+$miniatura="<img src='/miniatura/".$value['image']."'>";
             $videos[$key] = array(
                 $acciones,
+                $miniatura,
                 $value['id'],
                 $value['title'],
                 $value['description'],
@@ -90,7 +86,6 @@ class VideoController extends Controller
                 $value['email']
 
             );
-
         }
 
         return $videos;
@@ -116,43 +111,43 @@ class VideoController extends Controller
     public function store(Request $request)
     {
         //guarda el registro capturado(no editado solo nuevo)
-        $validaData = $this ->validate($request,[
-            'title'=>'required|min:5',
-            'description'=>'required',
-            'videos'=>'mimes:mp4'
+        $validaData = $this->validate($request, [
+            'title' => 'required|min:5',
+            'description' => 'required',
+            'videos' => 'mimes:mp4'
         ]);
-        $video= new video();
-        $user=\Auth::user();
+        $video = new video();
+
+        $user = \Auth::user();
         $video->user_id = $user->id;
-        $video->title =$request->input('title');
+        $video->title = $request->input('title');
         /* $image= $file('image'); */
-        $video->description =$request->input ('description');
+        $video->description = $request->input('description');
 
         $image = $request->file('image');
-if($image){
-   $image_path = time().$image->getClientOriginalName();
-   \Storage::disk('images')->put($image_path, \File::get($image));
+        if ($image) {
+            $image_path = time() . $image->getClientOriginalName();
+            \Storage::disk('images')->put($image_path, \File::get($image));
 
-   $video->image =$image_path;
+            $video->image = $image_path;
+        }
+        //subir video
+        $video_file = $request->file('video');
+        if ($video_file) {
+            $video_path = time() . $video_file->getClientOriginalName();
+            \Storage::disk('videos')->put(
+                $video_path,
+                \File::get($video_file)
+            );
+            $video->video_path = $video_path;
+        }
 
-}
-//subir video
-            $video_file = $request->file('video');
-            if($video_file){
-               $video_path = time().$video_file->getClientOriginalName();
-               \Storage::disk('videos')->put($video_path,
-               \File::get($video_file));
-               $video->video_path = $video_path;
-            }
 
-
-        $video ->save();
+        $video->save();
         return redirect()->route('videos.index')
-         ->with(array(
-            'message'=>'El video se ha subido correctamente'
-        ));
-
-
+            ->with(array(
+                'message' => 'El video se ha subido correctamente'
+            ));
     }
 
     /**
@@ -163,7 +158,8 @@ if($image){
      */
     public function show($id)
     {
-        //muestra un registro indibidual
+        $video = vsvideos::find($id);
+      return view('videos.show')->with('video',$video);
 
 
     }
@@ -176,10 +172,10 @@ if($image){
      */
     public function edit($id)
     {
-        $video=VsVideos::find($id);
+        $video = VsVideos::find($id);
 
         //abre el formulario para edición de un registro
-        return view('videos.edit')->with('video',$video);
+        return view('videos.edit')->with('video', $video);
     }
 
     /**
@@ -192,33 +188,31 @@ if($image){
     public function update(Request $request, $id)
     {
         //guarda la informacion modificada del edit
-        $validaData = $this ->validate($request,[
-            'title'=>'required|min:5',
-            'description'=>'required',
-            'videos'=>'mimes:mp4'
+        $validaData = $this->validate($request, [
+            'title' => 'required|min:5',
+            'description' => 'required',
+            'videos' => 'mimes:mp4'
         ]);
 
-        $user=\Auth::user();
-       $video= Video::find($id);
+        $user = \Auth::user();
+        $video = Video::find($id);
         $video->user_id = $user->id;
-        $video->title =$request->input('title');
+        $video->title = $request->input('title');
         /* $image= $file('image'); */
-        $video->description =$request->input ('description');
+        $video->description = $request->input('description');
 
         $image = $request->file('image');
-        if($image) {
+        if ($image) {
             $image_path = time() . $image->getClientOriginalName();
             \Storage::disk('images')->put($image_path, \File::get($image));
 
             $video->image = $image_path;
         }
-        $video ->update();
+        $video->update();
         return redirect()->route('videos.index')
             ->with(array(
-                'message'=>'El video se ha guardado correctamente'
+                'message' => 'El video se ha guardado correctamente'
             ));
-
-
     }
 
     /**
@@ -231,23 +225,29 @@ if($image){
     {
         //borrar
     }
-    public function delete_video($video_id){
+    public function delete_video($video_id)
+    {
         $video = Video::find($video_id);
-        if($video){
+        if ($video) {
             $video->status = 0;
             $video->update();
             return redirect()->route('videos.index')->with(array(
                 "message" => "El video se ha eliminado correctamente"
             ));
-        }else{
+        } else {
             return redirect()->route('videos.index')->with(array(
                 "message" => "El video que trata de eliminar no existe"
             ));
         }
-
     }
-    public function getImage($filename){
-        $file =\Storege::disk('imges')->get($filename);
-        return new Response($file,200);
-}
+    public function getImage($filename)
+    {
+        $file = \Storege::disk('imges')->get($filename);
+        return new Response($file, 200);
+    }
+    public function getVideo($filename)
+    {
+        $file = \Storege::disk('videos')->get($filename);
+        return new Response($file, 200);
+    }
 }

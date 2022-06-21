@@ -61,4 +61,8 @@ Route::get('miniatura/{filename}',array(
     'as'=>'imageVideo',
     'user'=>'App\Http\Controllers\VideoController@getImage'
 ));
+Route::get('video/{filename}',array(
+    'as'=>'fileVideo',
+    'user'=>'App\Http\Controllers\VideoController@getVideo'
+));
 
